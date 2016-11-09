@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>Test JS Doctolib</title>
+    <link rel="stylesheet" href="calendar.css" type="text/css" media="screen" title="no title" charset="utf-8">
+  </head>
+  <body>
+    <div id="calendar-wrapper" style="height: 600px;"></div>
+    <script src="calendar.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript">
+    new Calendar('#calendar-wrapper', new Date(2016, 9, 6),
+      [
+        {start_date: new Date(2016, 9, 8, 9, 30), end_date: new Date(2016, 9, 8, 14, 0), title: 'Al Di Meola'},
+        {start_date: new Date(2016, 9, 10, 9, 15), end_date: new Date(2016, 9, 10, 12, 30), title: 'Paco De Lucia'},
+        {start_date: new Date(2016, 9, 10, 12, 0), end_date: new Date(2016, 9, 10, 15, 30), title: 'John McLaughlin'},
+        {start_date: new Date(2016, 9, 10, 15, 0), end_date: new Date(2016, 9, 10, 18, 30), title: 'Django Reinhardt'}
+      ]
+    )
+    </script>
+  </body>
+</html>
