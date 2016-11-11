@@ -1,0 +1,28 @@
+.Calendar_week {
+	height: 100%;
+	width: 100%;
+	display: table;
+	table-layout: fixed;
+	background-color: #ccecfa
+}
+
+.Calendar_day {
+	display: table-cell;
+	position: relative;
+	color: #435f71;
+}
+
+.Calendar_day + .Calendar_day::before {
+	content: "";
+	position: absolute;
+	top: 16px;
+	bottom: 16px;
+	left: 0;
+	width: 1px;
+	background-color: white;
+}
+
+.Calendar_dayLabel {
+	text-align: center;
+	padding: 8px 0;
+}
