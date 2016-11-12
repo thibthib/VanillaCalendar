@@ -24,7 +24,7 @@ window.Calendar = function(selector, dayToShow, events) {
 		});
 	}
 	
-	function getDayElement(day) {
+	function getDayLabelElement(day) {
 		function getDayLabel(day) {
 			if (window.Intl) {
 				return new Intl.DateTimeFormat(undefined, {
@@ -38,13 +38,29 @@ window.Calendar = function(selector, dayToShow, events) {
 			}, '');
 		}
 		
-		var dayElement = document.createElement('div');
-		dayElement.classList.add('Calendar_day');
-		
 		var dayLabelElement = document.createElement('div');
 		dayLabelElement.classList.add('Calendar_dayLabel');
 		dayLabelElement.innerHTML = getDayLabel(day);
-		dayElement.appendChild(dayLabelElement);
+		return dayLabelElement;
+	}
+	
+	function getHoursElement() {
+		var hoursElement = document.createElement('div');
+		hoursElement.classList.add('Calendar_hours');
+		for (var i = 0; i < 24; i++) {
+			var hourElement = document.createElement('div');
+			hourElement.classList.add('Calendar_hour');
+			hourElement.dataset.hour = (i > 9 ? i : '0'+i) + ':00';
+			hoursElement.appendChild(hourElement);
+		}
+		return hoursElement;
+	}
+	
+	function getDayElement() {
+		var dayElement = document.createElement('div');
+		dayElement.classList.add('Calendar_day');
+		
+		dayElement.appendChild(getHoursElement());
 		
 		var dayContentElement = document.createElement('div');
 		dayContentElement.classList.add('Calendar_dayContent');
@@ -56,9 +72,20 @@ window.Calendar = function(selector, dayToShow, events) {
 	function getWeekElement(week) {
 		var weekElement = document.createElement('div');
 		weekElement.classList.add('Calendar_week');
+		
+		var daysLabelsElement = document.createElement('div');
+		daysLabelsElement.classList.add('Calendar_daysLabels');
 		week.forEach(function(day) {
-			weekElement.appendChild(getDayElement(day));
+			daysLabelsElement.appendChild(getDayLabelElement(day));
 		});
+		weekElement.appendChild(daysLabelsElement);
+		
+		var daysEventsElement = document.createElement('div');
+		daysEventsElement.classList.add('Calendar_days');
+		week.forEach(function(day) {
+			daysEventsElement.appendChild(getDayElement(day));
+		});
+		weekElement.appendChild(daysEventsElement);
 		
 		return weekElement;
 	}

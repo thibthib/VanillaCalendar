@@ -1,28 +1,85 @@
+* {
+	box-sizing: border-box;
+}
+
 .Calendar_week {
 	height: 100%;
 	width: 100%;
 	display: table;
 	table-layout: fixed;
-	background-color: #ccecfa
+	background-color: #ccecfa;
+	padding-left: 24px;
+}
+
+.Calendar_daysLabels,
+.Calendar_days {
+	display: table-row;
+}
+
+.Calendar_days {
+	height: 100%;
+}
+
+.Calendar_dayLabel {
+	position: relative;
+	display: table-cell;
+	text-align: center;
+	padding: 8px 0;
+	color: #435f71;
+}
+
+.Calendar_dayLabel + .Calendar_dayLabel::before {
+	content: "";
+	position: absolute;
+	top: 50%;
+	bottom: 0;
+	left: 0;
+	width: 1px;
+	background-color: white;
 }
 
 .Calendar_day {
 	display: table-cell;
 	position: relative;
-	color: #435f71;
 }
 
 .Calendar_day + .Calendar_day::before {
 	content: "";
 	position: absolute;
-	top: 16px;
+	top: 0;
 	bottom: 16px;
 	left: 0;
 	width: 1px;
 	background-color: white;
 }
 
-.Calendar_dayLabel {
-	text-align: center;
-	padding: 8px 0;
+.Calendar_hours {
+	height: 100%;
+}
+
+.Calendar_hour {
+	height: 4.16%;
+	position: relative;
+}
+
+.Calendar_hour:nth-child(2n+1)::after {
+	content: "";
+    height: 1px;
+    position: absolute;
+	top: 0;
+	right: 16px;
+	left: 16px;
+	background: white;
+	opacity: 0.5;
+}
+
+.Calendar_day:first-child .Calendar_hour:nth-child(2n+3)::before {
+    content: attr(data-hour);
+    color: #435f71;
+    position: absolute;
+    top: 0;
+    left: -18px;
+    transform: translateY(-50%);
+    font-size: 12px;
+    text-align: center;
 }
