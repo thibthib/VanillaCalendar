@@ -9,22 +9,21 @@ function isSameDay(day1, day2) {
 }
 
 function areEventsConcurrent(event1, event2) {
+	// two events are said concurrent when their timetable overlap
 	var isFullyBefore = event1.end_date.getTime() < event2.start_date.getTime();
 	var isFullyAfter = event1.start_date.getTime() > event2.end_date.getTime();
 	return !( isFullyBefore || isFullyAfter);
 }
 
-function getConcurrentEvents(event, events) {
-	return events.filter(function(otherEvent) {
-		return otherEvent !== event && areEventsConcurrent(event, otherEvent);
-	});
-}
-
-function computeEvents(events) {
+function prepareEventsForDisplay(events) {
+	// assign each event its array of concurrents events
 	events.forEach(function(event) {
-		event.concurrents = getConcurrentEvents(event, events);
+		event.concurrents = events.filter(function(otherEvent) {
+			return otherEvent !== event && areEventsConcurrent(event, otherEvent);
+		});
 	});
 	
+	// sort the events by start date
 	return events.sort(function(event1, event2) {
 		return event1.start_date.getTime() - event2.start_date.getTime(); 
 	});
@@ -32,17 +31,17 @@ function computeEvents(events) {
 
 window.Calendar = function(selector, dayToShow, events) {
 	var firstDayOfWeek = 1; // Monday
+	var eventsForDisplay = prepareEventsForDisplay(events);
+	
+	// generate week's array of days
 	var currentWeek = [];
-	
-	var computedEvents = computeEvents(events);
-	
 	var firstDateOfCurrentWeek = dayToShow.getDate()+firstDayOfWeek-dayToShow.getDay();
 	for (var i = firstDateOfCurrentWeek; i < 7+firstDateOfCurrentWeek; i++) {
 		var day = new Date(dayToShow);
 		day.setDate(i);
 		currentWeek.push({
 			date: day,
-			events: computedEvents.filter(function(event) {
+			events: eventsForDisplay.filter(function(event) {
 				return isSameDay(event.start_date, day) || isSameDay(event.end_date, day);
 			})
 		});
@@ -57,6 +56,8 @@ window.Calendar = function(selector, dayToShow, events) {
 					day: 'numeric'
 				}).format(day.date);
 			}
+			
+			// when the browser doesn't have the Intl API, just display the week day, date and month from date.toString
 			return day.date.toString().split(' ').reduce(function(label, bit, index) {
 				return index > 2 ? label : label + ' ' + bit;
 			}, '');
@@ -71,6 +72,7 @@ window.Calendar = function(selector, dayToShow, events) {
 	function getHourLabel(date) {
 		var hours = date.getHours();
 		var minutes = date.getMinutes();
+		// hey ! no dependency on left-pad 😬
 		return (hours > 9 ? hours : '0'+hours) + ':' + (minutes > 9 ? minutes : '0'+minutes);
 	}
 	
@@ -90,10 +92,11 @@ window.Calendar = function(selector, dayToShow, events) {
 	}
 	
 	function getEventElement(event) {
-		var length = (event.end_date.getTime() - event.start_date.getTime()) / 3600000;
 		var eventElement = document.createElement('div');
 		eventElement.classList.add('Calendar_event');
-		eventElement.style.height = (length/24)*100+'%';
+		// the top and height of the event element as percentage of the 24 hours of the day
+		var eventDuration = (event.end_date.getTime() - event.start_date.getTime()) / 3600000;
+		eventElement.style.height = (eventDuration/24)*100+'%';
 		var startHour = event.start_date.getHours() + event.start_date.getMinutes()/60;
 		eventElement.style.top = (startHour/24)*100+'%';
 		
@@ -110,6 +113,7 @@ window.Calendar = function(selector, dayToShow, events) {
 		return eventElement;
 	}
 	
+	// what's the maximum of concurrents at the same time ?
 	function getMaxConcurrents(event) {
 		return event.concurrents.reduce(function(max, concurrent) {
 			return Math.max(max, concurrent.concurrents.length);
@@ -123,6 +127,9 @@ window.Calendar = function(selector, dayToShow, events) {
 		
 		var dayContentElement = document.createElement('div');
 		dayContentElement.classList.add('Calendar_dayContent');
+		
+		// We need to move concurrent events so their display don't overlap
+		// We'll use this index to know how much we need to move each event
 		var concurrentIndex = 0;
 		day.events.forEach(function(event) {
 			var eventElement = getEventElement(event);
@@ -132,6 +139,7 @@ window.Calendar = function(selector, dayToShow, events) {
 				eventElement.style.left = (100*concurrentIndex/totalConcurrents)+'%';
 				concurrentIndex = concurrentIndex+1;
 			} else {
+				// We reset the concurrentIndex when we leave the concurrent block
 				concurrentIndex = 0;
 			}
 			dayContentElement.appendChild(eventElement);
