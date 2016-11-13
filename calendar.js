@@ -15,16 +15,53 @@ function areEventsConcurrent(event1, event2) {
 	return !( isFullyBefore || isFullyAfter);
 }
 
+var HOUR_DURATION = 60*60*1000;
+var DAY_DURATION = 24*HOUR_DURATION;
+
 function prepareEventsForDisplay(events) {
+	// split event on multiple days into smaller events for each day
+	var eventsForDisplay = events.map(function(event) {
+		if (isSameDay(event.start_date, event.end_date)) {
+			return event;
+		} else {
+			const splitEvents = [];
+			var daysDifference = (event.end_date.getTime() - event.start_date.getTime()) / DAY_DURATION;
+			var startDay = event.start_date.getDate();
+			var endDay = event.end_date.getDate();
+			for (var i = startDay; i < startDay+daysDifference+1; i++) {
+				var startDate = new Date(event.start_date);
+				if (i !== startDay) {
+					startDate.setDate(i);
+					startDate.setHours(0,0,0,0);
+				}
+				
+				var endDate = new Date(event.end_date);
+				if (i !== endDay) {
+					endDate.setDate(i);
+					endDate.setHours(23,59,59,0);
+				}
+				
+				splitEvents.push({
+					start_date: startDate,
+					end_date: endDate,
+					title: event.title
+				});
+			}
+			return splitEvents;
+		}
+	}).reduce(function (flat, toFlatten) {
+		return flat.concat(toFlatten);
+	}, []);
+
 	// assign each event its array of concurrents events
-	events.forEach(function(event) {
-		event.concurrents = events.filter(function(otherEvent) {
+	eventsForDisplay.forEach(function(event) {
+		event.concurrents = eventsForDisplay.filter(function(otherEvent) {
 			return otherEvent !== event && areEventsConcurrent(event, otherEvent);
 		});
 	});
 	
 	// sort the events by start date
-	return events.sort(function(event1, event2) {
+	return eventsForDisplay.sort(function(event1, event2) {
 		return event1.start_date.getTime() - event2.start_date.getTime(); 
 	});
 }
@@ -32,6 +69,7 @@ function prepareEventsForDisplay(events) {
 window.Calendar = function(selector, dayToShow, events) {
 	var firstDayOfWeek = 1; // Monday
 	var eventsForDisplay = prepareEventsForDisplay(events);
+	console.log(eventsForDisplay);
 	
 	// generate week's array of days
 	var currentWeek = [];
@@ -95,7 +133,7 @@ window.Calendar = function(selector, dayToShow, events) {
 		var eventElement = document.createElement('div');
 		eventElement.classList.add('Calendar_event');
 		// the top and height of the event element as percentage of the 24 hours of the day
-		var eventDuration = (event.end_date.getTime() - event.start_date.getTime()) / 3600000;
+		var eventDuration = (event.end_date.getTime() - event.start_date.getTime()) / HOUR_DURATION;
 		eventElement.style.height = (eventDuration/24)*100+'%';
 		var startHour = event.start_date.getHours() + event.start_date.getMinutes()/60;
 		eventElement.style.top = (startHour/24)*100+'%';
