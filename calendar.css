@@ -55,6 +55,7 @@
 
 .Calendar_hours {
 	height: 100%;
+	width: 100%;
 }
 
 .Calendar_hour {
@@ -82,4 +83,34 @@
     transform: translateY(-50%);
     font-size: 12px;
     text-align: center;
+}
+
+.Calendar_dayContent {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: calc(100% - 8px);
+	margin: 0 4px;
+}
+
+.Calendar_event {
+	position: absolute;
+	left: 0;
+	right: 0;
+	background-color: white;
+	border-radius: 4px;
+	border: 1px solid rgba(67, 95, 113, 0.5);
+	padding: 4px;
+	overflow: hidden;
+}
+
+.Calendar_eventHour,
+.Calendar_eventTitle {
+	margin: 0;
+	color: #435f71;
+}
+
+.Calendar_eventHour {
+	font-size: 12px;
 }
